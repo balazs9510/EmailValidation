@@ -95,16 +95,17 @@ namespace UnitTests
 			"uncommon-tld@sld.travel",
 		};
 
-		static readonly string[] InvalidAddresses = {
-			"",
-			"invalid",
-			"invalid@",
-			"invalid @",
-			"invalid@[555.666.777.888]",
-			"invalid@[IPv6:123456]",
-			"invalid@[127.0.0.1.]",
-			"invalid@[127.0.0.1].",
-			"invalid@[127.0.0.1]x",
+        static readonly string[] InvalidAddresses = {
+            "",
+            "invalid",
+            "invalid@",
+            "invalid @",
+            "invalid@[555.666.777.888]",
+            "invalid@[IPv6:123456]",
+            "invalid@[127.0.0.1.]",
+            "invalid@[127.0.0.1].",
+            "invalid@[127.0.0.1]x",
+
 
 			// examples from wikipedia
 			"Abc.example.com",
@@ -200,7 +201,21 @@ namespace UnitTests
 			}
 		}
 
-		[Test]
+        [Test]
+        public void TestValidationContextIsNull ()
+        {
+            EmailValidationTarget target = new EmailValidationTarget();
+
+            foreach (var email in ValidAddresses)
+            {
+                target.Email = email;
+                EmailAttribute em = new EmailAttribute();
+
+                Assert.Throws<ArgumentNullException>(() => em.IsValid(email));
+            }
+        }
+
+        [Test]
 		public void TestValidationAttributeValidInternationalAddresses ()
 		{
 			var target = new InternationalEmailValidationTarget ();
@@ -212,6 +227,18 @@ namespace UnitTests
 			}
 		}
 
+        [Test]
+        public void TestNoArgumentValidationInvalidAddresses ()
+        {
+            var target = new NoArgumentEmailValidationTarget();
+
+            foreach (var email in InvalidAddresses)
+            {
+                target.Email = email;
+                Assert.IsFalse(AreAttributesValid(target), "Valid Address {0}", email);
+            }
+        }
+
 		bool AreAttributesValid (object target)
 		{
 			var context = new ValidationContext (target, null, null);
@@ -220,7 +247,14 @@ namespace UnitTests
 			return Validator.TryValidateObject (target, context, results, true);
 		}
 
-		class EmailValidationTarget
+        bool NullContextExceptionTest(object target)
+        {
+            var results = new List<ValidationResult>();
+
+            return Validator.TryValidateObject(target, null, results, true);
+        }
+
+        class EmailValidationTarget
 		{
 			[Email (true)]
 			public string Email { get; set; }
@@ -231,5 +265,11 @@ namespace UnitTests
 			[Email (true, true)]
 			public string Email { get; set; }
 		}
+
+        class NoArgumentEmailValidationTarget
+        {
+            [Email ()]
+            public string Email { get; set; }
+        }
 	}
 }
