@@ -49,6 +49,7 @@ namespace UnitTests
 			"valid.ipv6.addr@[IPv6:fe80::230:48ff:fe33:bc33]",
 			"valid.ipv6.addr@[IPv6:fe80:0000:0000:0000:0202:b3ff:fe1e:8329]",
 			"valid.ipv6v4.addr@[IPv6:aaaa:aaaa:aaaa:aaaa:aaaa:aaaa:127.0.0.1]",
+            
 
 			// examples from wikipedia
 			"niceandsimple@example.com",
@@ -102,9 +103,18 @@ namespace UnitTests
             "invalid @",
             "invalid@[555.666.777.888]",
             "invalid@[IPv6:123456]",
+            
             "invalid@[127.0.0.1.]",
             "invalid@[127.0.0.1].",
             "invalid@[127.0.0.1]x",
+
+            // try to make better coverage 
+            "invalid@[]",
+            "invalid@[127.0.0.1",
+            "invalid@[IPv6:aaaa:aaaa:aaaa:aaaa:aaaa:aaaa:127.0.0.1",
+            "invalid@[IPv6:2607:f0d0:1002:51::4",
+            
+            "invalid.ipv6v4.addr@[IPv6:aaaa:aaaa:aaaa:aaaa:aaaa:aaaa:127.0.0.1].",
 
 
 			// examples from wikipedia
@@ -121,6 +131,7 @@ namespace UnitTests
 			"* .local-starts-with-dot@sld.com",
 			"<>@[]`|@even-more-invalid-characters-in-local.org",
 			"@missing-local.org",
+            ".hello.a@gmail.com",
 			"IP-and-port@127.0.0.1:25",
 			//"another-invalid-ip@127.0.0.256",
 			"invalid",
@@ -214,6 +225,11 @@ namespace UnitTests
                 Assert.Throws<ArgumentNullException>(() => em.IsValid(email));
             }
         }
+        [Test]
+        public void SkipIpv6Test()
+        {
+            Assert.IsFalse(EmailValidator.Validate("")); 
+        }
 
         [Test]
 		public void TestValidationAttributeValidInternationalAddresses ()
@@ -226,7 +242,7 @@ namespace UnitTests
 				Assert.IsTrue (AreAttributesValid (target), "Valid International Address {0}", email);
 			}
 		}
-
+       
         [Test]
         public void TestNoArgumentValidationInvalidAddresses ()
         {

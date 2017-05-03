@@ -4,3 +4,4 @@ packages
 bin
 obj
 *~
+/.vs/EmailValidation/v14/.suo
